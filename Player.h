@@ -16,6 +16,7 @@ private:
     int totalShots;
     int hits;
     int misses;
+    bool skipNextTurn;
 
 public:
     Player(const char* playerName, int rows, int cols);
@@ -23,17 +24,20 @@ public:
 
     void addShip(BattleShip* ship);
     void deployFleet();
-    void takeTurn(Player& enemy);
+    int  takeTurn(Player& enemy);        // returns hits this turn
 
     int  remainingShips() const;
     int  getMaxOperativeBursts() const;
 
+    bool mustSkip() const;
+    void setSkip(bool s);
+
     const char* getName() const;
-    void printStats()   const;
+    void printStats() const;
     void printBoards(bool revealShips) const;
 
     Board* getOwnBoard()    const;
     Board* getTargetBoard() const;
 };
 
-#endif // PLAYER_H
+#endif

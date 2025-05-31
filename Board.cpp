@@ -12,7 +12,7 @@ Board::Board(int r, int c) : rows(r), cols(c)
         grid[i] = new char[cols];
         for (int j = 0; j < cols; ++j)
         {
-            grid[i][j] = '*';    // Empty cell indicator
+            grid[i][j] = '.';    // Empty cell indicator
         }
     }
 }
@@ -35,22 +35,32 @@ bool Board::isInside(const Coordinate& coord) const
 
 bool Board::isOccupied(const Coordinate& coord) const
 {
-    return grid[coord.row][coord.col] != '*';
+    return grid[coord.row][coord.col] != '.';
 }
 
-// Place ship between start and end (inclusive)
-// Works for horizontal, vertical and diagonal (45°) placements
+
 bool Board::placeShip(BattleShip* ship,
                       const Coordinate& start,
                       const Coordinate& end)
 {
+    if (ship->getSize() == 1)
+    {
+        if (!isInside(start) || isOccupied(start) ||
+            start.row != end.row || start.col != end.col)
+            return false;
+
+        grid[start.row][start.col] = ship->getSymbol();
+        ship->cells[0]             = start;
+        return true;
+    }
+
     // Direction deltas
     int dRow = (end.row > start.row) ? 1 : (end.row < start.row ? -1 : 0);
     int dCol = (end.col > start.col) ? 1 : (end.col < start.col ? -1 : 0);
 
     // Validate direction
-    if (dRow == 0 && dCol == 0) return false;            // Same cell
-    if (dRow != 0 && dCol != 0 && (dRow != dCol)) return false; // Not 45°
+    if (dRow == 0 && dCol == 0) return false;
+    if (dRow != 0 && dCol != 0 && (dRow != dCol)) return false;
 
     // Collect cells along the path
     int length = 0;
@@ -85,24 +95,18 @@ bool Board::placeShip(BattleShip* ship,
     return true;
 }
 
-// Mark a coordinate as shot; returns true if it was a hit
-bool Board::markHit(const Coordinate& coord)
-{
+bool Board::markHit(const Coordinate& coord) {
     if (!isInside(coord)) return false;
 
-    char& cell = grid[coord.row][coord.col];
-    if (cell == '*')      // Miss
-    {
+    char &cell = grid[coord.row][coord.col];
+
+    if (cell == '.') {
         cell = '0';
         return false;
     }
-    if (cell == '0')      // Already shot here
-    {
+    if (cell == '0')
         return false;
-    }
 
-    // Hit on a ship cell; convert to '0' for future reference
-    cell = '0';
     return true;
 }
 
@@ -131,10 +135,9 @@ void Board::display(bool revealShips) const
         for (int c = 0; c < cols; ++c)
         {
             char ch = grid[r][c];
-            if (!revealShips && ch != '*' && ch != '0')
-            {
-                ch = '*';   // Hide ships when not revealing
-            }
+            if (!revealShips && ch >= '1' && ch <= '9')
+                ch = '.';
+
             std::cout << ch << ' ';
         }
         std::cout << std::endl;

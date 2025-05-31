@@ -3,6 +3,7 @@
 
 #include "Player.h"
 
+// Battle modes
 enum BattleMode
 {
     SWIFTSTRIKE = 1,
@@ -19,16 +20,19 @@ private:
     int         rows;
     int         cols;
 
-    void setupMode();
-    void setupPlayers();
+    // Internal phases
     void placementPhase();
     void battlePhase();
-    void applyDiceEffect(Player& player);   // TODO: implement later
+    void applyDiceEffect(Player& attacker, int hitsThisTurn);
     bool checkVictory() const;
     void switchTurn();
 
 public:
-    Game();
+    Game(BattleMode mode,
+         const char* name1,
+         const char* name2,
+         int rows,
+         int cols);
     ~Game();
 
     void start();

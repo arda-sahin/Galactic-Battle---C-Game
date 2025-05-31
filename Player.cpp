@@ -1,13 +1,10 @@
 #include "Player.h"
 #include <iostream>
-#include <cstring>    // For strncpy
+#include <cstring>
 
-// ------------------ Helper (local) ------------------
-// Converts a coordinate string like "a4" to Coordinate.
-// Returns true on success, false on failure.
 static bool parseCoordinate(const char* str, Coordinate& out)
 {
-    if (str == nullptr || str[0] == '\0' || str[1] == '\0')
+    if (str == 0 || str[0] == '\0' || str[1] == '\0')
         return false;
 
     char rowChar = str[0];
@@ -17,29 +14,29 @@ static bool parseCoordinate(const char* str, Coordinate& out)
     int col = 0;
     for (int i = 1; str[i] != '\0'; ++i)
     {
-        if (str[i] < '0' || str[i] > '9') return false;
+        if (str[i] < '0' || str[i] > '9')
+            return false;
         col = col * 10 + (str[i] - '0');
     }
+
     out.row = rowChar - 'a';
     out.col = col;
     return true;
 }
 
-// ------------------ Constructor / Destructor ------------------
+// Constructor / Destructor
 Player::Player(const char* playerName, int rows, int cols)
-        : ownBoard(nullptr),
-          targetBoard(nullptr),
+        : ownBoard(0),
+          targetBoard(0),
           fleetSize(0),
           totalShots(0),
           hits(0),
-          misses(0)
+          misses(0),
+          skipNextTurn(false)
 {
-    // Copy name safely
     std::memset(name, 0, 50);
-    if (playerName != nullptr)
-    {
+    if (playerName != 0)
         std::strncpy(name, playerName, 50 - 1);
-    }
 
     ownBoard    = new Board(rows, cols);
     targetBoard = new Board(rows, cols);
@@ -49,47 +46,39 @@ Player::~Player()
 {
     delete ownBoard;
     delete targetBoard;
-
     for (int i = 0; i < fleetSize; ++i)
-    {
         delete fleet[i];
-    }
 }
 
-// ------------------ Fleet Management ------------------
+// Fleet management
 void Player::addShip(BattleShip* ship)
 {
-    if (fleetSize < 20 && ship != nullptr)
-    {
+    if (fleetSize < 20 && ship != 0)
         fleet[fleetSize++] = ship;
-    }
 }
 
 int Player::remainingShips() const
 {
-    int count = 0;
+    int cnt = 0;
     for (int i = 0; i < fleetSize; ++i)
-    {
-        if (!fleet[i]->isSunk()) ++count;
-    }
-    return count;
+        if (!fleet[i]->isSunk()) ++cnt;
+    return cnt;
 }
 
 int Player::getMaxOperativeBursts() const
 {
-    int maxBursts = 0;
+    int maxB = 0;
     for (int i = 0; i < fleetSize; ++i)
-    {
-        if (!fleet[i]->isSunk())
-        {
-            int bursts = fleet[i]->getLaserBursts();
-            if (bursts > maxBursts) maxBursts = bursts;
-        }
-    }
-    return maxBursts;
+        if (!fleet[i]->isSunk() &&
+            fleet[i]->getLaserBursts() > maxB)
+            maxB = fleet[i]->getLaserBursts();
+    return maxB;
 }
 
-// ------------------ Deployment Phase ------------------
+bool Player::mustSkip() const     { return skipNextTurn; }
+void Player::setSkip(bool s)      { skipNextTurn = s;    }
+
+// Deployment phase
 void Player::deployFleet()
 {
     std::cout << "\nCommander " << name << ", deploy your fleet.\n";
@@ -105,13 +94,12 @@ void Player::deployFleet()
                       << ", symbol '" << ship->getSymbol()
                       << "')\nEnter start and end coordinates (e.g., a1 a5): ";
 
-            char startStr[10];
-            char endStr[10];
-            std::cin >> startStr >> endStr;
+            char sStr[10], eStr[10];
+            std::cin >> sStr >> eStr;
 
             Coordinate start, end;
-            if (!parseCoordinate(startStr, start) ||
-                !parseCoordinate(endStr, end))
+            if (!parseCoordinate(sStr, start) ||
+                !parseCoordinate(eStr, end))
             {
                 std::cout << "Invalid input. Try again.\n";
                 continue;
@@ -130,12 +118,20 @@ void Player::deployFleet()
     }
 }
 
-// ------------------ Shooting Phase ------------------
-void Player::takeTurn(Player& enemy)
+// Shooting phase – returns hits in this turn
+int Player::takeTurn(Player& enemy)
 {
+    if (skipNextTurn)
+    {
+        std::cout << "\n" << name << " must skip this round!\n";
+        skipNextTurn = false;
+        return 0;
+    }
+
     int shotsAllowed = getMaxOperativeBursts();
-    std::cout << "\n" << name << " shoots now (can shoot "
-              << shotsAllowed << "):\n";
+    std::cout << "\n" << name << " shoots (" << shotsAllowed << " shots):\n";
+
+    int hitsThisTurn = 0;
 
     for (int s = 0; s < shotsAllowed; ++s)
     {
@@ -145,13 +141,13 @@ void Player::takeTurn(Player& enemy)
 
         while (!valid)
         {
-            std::cout << "Enter coordinate #" << (s + 1) << ": ";
+            std::cout << "  Shot #" << (s + 1) << ": ";
             std::cin >> coordStr;
 
             if (!parseCoordinate(coordStr, target) ||
-                targetBoard->isOccupied(target))   // already shot here
+                targetBoard->isOccupied(target))         // already shot here
             {
-                std::cout << "Invalid or repeated coordinate. Try again.\n";
+                std::cout << "  Invalid or repeated. Try again.\n";
             }
             else
             {
@@ -160,44 +156,81 @@ void Player::takeTurn(Player& enemy)
         }
 
         bool hit = enemy.ownBoard->markHit(target);
-        targetBoard->setCell(target, hit ? '*' : '0'); // '*' placeholder for hit
+        char markChar = '0';                              // default = miss
 
+        if (hit)
+        {
+            ++hits;
+            ++hitsThisTurn;
+
+            //locate the hit ship to update HP & get its symbol
+            BattleShip* hitShip = 0;
+            for (int i = 0; i < enemy.fleetSize && !hitShip; ++i)
+            {
+                BattleShip* ship = enemy.fleet[i];
+                for (int c = 0; c < ship->getSize(); ++c)
+                {
+                    Coordinate cell = ship->cells[c];
+                    if (cell.row == target.row && cell.col == target.col)
+                    {
+                        hitShip = ship;
+                        break;
+                    }
+                }
+            }
+
+            if (hitShip)
+            {
+                hitShip->registerHit();
+                markChar = hitShip->getSymbol();
+                if (hitShip->isSunk())
+                {
+                    std::cout << "    >> " << enemy.getName()
+                              << "'s ship (size " << hitShip->getSize()
+                              << ") sunk!\n";
+                }
+            }
+            else
+            {
+                markChar = '1';
+            }
+        }
+        else
+        {
+            ++misses;
+        }
+
+        targetBoard->setCell(target, markChar);
         ++totalShots;
-        if (hit) ++hits;
-        else     ++misses;
     }
+    return hitsThisTurn;
 }
 
-// ------------------ Reporting ------------------
-const char* Player::getName() const
-{
-    return name;
-}
+
+// Reporting
+const char* Player::getName() const { return name; }
 
 void Player::printStats() const
 {
-    std::cout << name << "  |  Shots: " << totalShots
-              << "  Hits: " << hits
-              << "  Misses: " << misses
-              << "  Remaining Ships: " << remainingShips() << "\n";
+    std::cout << name << "  |  Shots: "  << totalShots
+              << "  Hits: "             << hits
+              << "  Misses: "           << misses
+              << "  Remaining Ships: "  << remainingShips() << "\n";
 }
 
-void Player::printBoards(bool revealShips) const
+void Player::printBoards(bool /*revealShips*/) const
 {
     std::cout << "\n=== " << name << " OWN BOARD ===\n";
-    ownBoard->display(revealShips);
+    ownBoard->display(true);          // always reveal own ships
 
     std::cout << "\n=== " << name << " TARGET BOARD ===\n";
-    targetBoard->display(false);
+    targetBoard->display(true);       // show all info we discovered
 }
 
-// ------------------ Accessors ------------------
-Board* Player::getOwnBoard() const
-{
+
+Board* Player::getOwnBoard() const {
     return ownBoard;
 }
-
-Board* Player::getTargetBoard() const
-{
+Board* Player::getTargetBoard() const {
     return targetBoard;
 }

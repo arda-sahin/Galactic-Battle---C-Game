@@ -6,67 +6,28 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cstring>
 
-// -------------- Constructor / Destructor --------------
-Game::Game()
-        : mode(SWIFTSTRIKE),
+// Constructor / Destructor
+Game::Game(BattleMode m,
+           const char* name1,
+           const char* name2,
+           int r,
+           int c)
+        : mode(m),
           currentPlayer(0),
-          rows(5),
-          cols(8)
+          rows(r),
+          cols(c)
 {
-    players[0] = nullptr;
-    players[1] = nullptr;
-
-    std::srand((int)std::time(0));   // Seed RNG
-}
-
-Game::~Game()
-{
-    delete players[0];
-    delete players[1];
-}
-
-// -------------- Private Helpers --------------
-void Game::setupMode()
-{
-    std::cout << "Select Battle Mode:\n"
-              << "1) The Swiftstrike (5x8)\n"
-              << "2) The Starlight Clash (8x10)\n"
-              << "3) Wrath of Titans (10x12)\n"
-              << "Choice: ";
-
-    int choice = 1;
-    std::cin >> choice;
-
-    switch (choice)
-    {
-        case 2:
-            mode = STARLIGHT_CLASH; rows = 8;  cols = 10; break;
-        case 3:
-            mode = WRATH_OF_TITANS; rows = 10; cols = 12; break;
-        default:
-            mode = SWIFTSTRIKE;     rows = 5;  cols = 8;  break;
-    }
-}
-
-void Game::setupPlayers()
-{
-    char name1[50];
-    char name2[50];
-
-    std::cout << "Enter Rebel commander name: ";
-    std::cin >> name1;
-    std::cout << "Enter Imperial commander name: ";
-    std::cin >> name2;
-
+    // Create players
     players[0] = new Player(name1, rows, cols);
     players[1] = new Player(name2, rows, cols);
 
-    // Fleet composition per mode
+    // Fleet composition based on chosen mode
     int sd, mc, xw, tie;
-    if (mode == SWIFTSTRIKE)           { sd = 1; mc = 1; xw = 1; tie = 2; }
-    else if (mode == STARLIGHT_CLASH)  { sd = 2; mc = 2; xw = 2; tie = 4; }
-    else                               { sd = 4; mc = 3; xw = 3; tie = 4; }
+    if (mode == SWIFTSTRIKE)          { sd = 1; mc = 1; xw = 1; tie = 2; }
+    else if (mode == STARLIGHT_CLASH) { sd = 2; mc = 2; xw = 2; tie = 4; }
+    else                              { sd = 4; mc = 3; xw = 3; tie = 4; }
 
     // Add ships to both players
     for (int p = 0; p < 2; ++p)
@@ -77,6 +38,14 @@ void Game::setupPlayers()
         for (int i = 0; i < xw;  ++i) players[p]->addShip(new XWingSquadron(++id));
         for (int i = 0; i < tie; ++i) players[p]->addShip(new TIEFighter(++id));
     }
+
+    std::srand((int)std::time(0));   // Seed RNG once
+}
+
+Game::~Game()
+{
+    delete players[0];
+    delete players[1];
 }
 
 void Game::placementPhase()
@@ -93,17 +62,15 @@ void Game::battlePhase()
         Player* defender = players[1 - currentPlayer];
 
         attacker->printBoards(false);
-        attacker->takeTurn(*defender);
+        int hitsThisTurn = attacker->takeTurn(*defender);
 
-        // TODO: applyDiceEffect(attacker);
+        applyDiceEffect(*attacker, hitsThisTurn);
 
         attacker->printStats();
         defender->printStats();
 
         if (!checkVictory())
-        {
             switchTurn();
-        }
     }
 
     std::cout << "\n*** Victory! Commander "
@@ -111,9 +78,23 @@ void Game::battlePhase()
               << " wins the battle! ***\n";
 }
 
-void Game::applyDiceEffect(Player& /*player*/)
+
+// Dice mechanic: if ≥2 hits → 1/6 chance to skip next turn
+void Game::applyDiceEffect(Player& attacker, int hitsThisTurn)
 {
-    // TODO: implement random bonus / penalty after 2+ hits
+    if (hitsThisTurn < 2) return;
+
+    int roll = (std::rand() % 6) + 1;
+    std::cout << "  > Dice rolled: " << roll << "\n";
+    if (roll == 1)
+    {
+        std::cout << "  > Penalty: weapons overheated, next turn skipped.\n";
+        attacker.setSkip(true);
+    }
+    else
+    {
+        std::cout << "  > No special effect.\n";
+    }
 }
 
 bool Game::checkVictory() const
@@ -127,11 +108,8 @@ void Game::switchTurn()
     currentPlayer = 1 - currentPlayer;
 }
 
-// -------------- Public --------------
 void Game::start()
 {
-    setupMode();
-    setupPlayers();
     placementPhase();
     battlePhase();
 }
