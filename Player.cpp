@@ -65,6 +65,21 @@ int Player::remainingShips() const
     return cnt;
 }
 
+void Player::countRemainingTypes(int& sd,int& mc,int& xw,int& tie) const
+{
+    sd = mc = xw = tie = 0;
+    for (int i = 0; i < fleetSize; ++i)
+    {
+        if (fleet[i]->isSunk()) continue;
+
+        char sym = fleet[i]->getSymbol();
+        if      (sym == '5') ++sd;
+        else if (sym == '4') ++mc;
+        else if (sym == '3') ++xw;
+        else if (sym == '1') ++tie;
+    }
+}
+
 int Player::getMaxOperativeBursts() const
 {
     int maxB = 0;
@@ -212,10 +227,13 @@ const char* Player::getName() const { return name; }
 
 void Player::printStats() const
 {
-    std::cout << name << "  |  Shots: "  << totalShots
-              << "  Hits: "             << hits
-              << "  Misses: "           << misses
-              << "  Remaining Ships: "  << remainingShips() << "\n";
+    int sd, mc, xw, tie;
+    countRemainingTypes(sd, mc, xw, tie);
+
+    std::cout << name
+              << "  |  Shots: "  << totalShots << "  Hits: " << hits << "  Misses: "  << misses
+              << "  Remaining Ships: " << remainingShips()
+              << " (" << "5:" << sd << ' ' << "4:" << mc << ' ' << "3:" << xw << ' ' << "1:" << tie << ")\n";
 }
 
 void Player::printBoards(bool /*revealShips*/) const

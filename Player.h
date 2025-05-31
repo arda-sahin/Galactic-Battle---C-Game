@@ -18,6 +18,8 @@ private:
     int misses;
     bool skipNextTurn;
 
+    void countRemainingTypes(int& sd,int& mc, int& xw,int& tie) const;
+
 public:
     Player(const char* playerName, int rows, int cols);
     ~Player();

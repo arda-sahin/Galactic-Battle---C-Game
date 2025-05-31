@@ -6,7 +6,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <cstring>
 
 // Constructor / Destructor
 Game::Game(BattleMode m,
