@@ -31,8 +31,7 @@ Player::Player(const char* playerName, int rows, int cols)
           fleetSize(0),
           totalShots(0),
           hits(0),
-          misses(0),
-          skipNextTurn(false)
+          misses(0)
 {
     std::memset(name, 0, 50);
     if (playerName != 0)
@@ -80,7 +79,7 @@ void Player::countRemainingTypes(int& sd,int& mc,int& xw,int& tie) const
     }
 }
 
-int Player::getMaxOperativeBursts() const
+int Player::maxLaserBursts() const
 {
     int maxB = 0;
     for (int i = 0; i < fleetSize; ++i)
@@ -89,9 +88,6 @@ int Player::getMaxOperativeBursts() const
             maxB = fleet[i]->getLaserBursts();
     return maxB;
 }
-
-bool Player::mustSkip() const     { return skipNextTurn; }
-void Player::setSkip(bool s)      { skipNextTurn = s;    }
 
 // Deployment phase
 void Player::deployFleet()
@@ -136,14 +132,7 @@ void Player::deployFleet()
 // Shooting phase – returns hits in this turn
 int Player::takeTurn(Player& enemy)
 {
-    if (skipNextTurn)
-    {
-        std::cout << "\n" << name << " must skip this round!\n";
-        skipNextTurn = false;
-        return 0;
-    }
-
-    int shotsAllowed = getMaxOperativeBursts();
+    int shotsAllowed = maxLaserBursts();
     std::cout << "\n" << name << " shoots (" << shotsAllowed << " shots):\n";
 
     int hitsThisTurn = 0;
@@ -202,7 +191,7 @@ int Player::takeTurn(Player& enemy)
                 {
                     std::cout << "    >> " << enemy.getName()
                               << "'s ship (size " << hitShip->getSize()
-                              << ") status!\n";
+                              << ") sunk!\n";
                 }
             }
             else

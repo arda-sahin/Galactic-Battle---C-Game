@@ -22,7 +22,6 @@ private:
 
     void placementPhase();
     void battlePhase();
-    void applyDiceEffect(Player& attacker, int hitsThisTurn);
     bool checkVictory() const;
     void switchTurn();
 

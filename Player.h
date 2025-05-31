@@ -16,7 +16,6 @@ private:
     int totalShots;
     int hits;
     int misses;
-    bool skipNextTurn;
 
     void countRemainingTypes(int& sd,int& mc, int& xw,int& tie) const;
 
@@ -29,10 +28,8 @@ public:
     int  takeTurn(Player& enemy); // returns hits this turn
 
     int  remainingShips() const;
-    int  getMaxOperativeBursts() const;
+    int  maxLaserBursts() const;
 
-    bool mustSkip() const;
-    void setSkip(bool s);
 
     const char* getName() const;
     void printStats() const;

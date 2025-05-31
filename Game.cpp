@@ -4,8 +4,6 @@
 #include "XWingSquadron.h"
 #include "TIEFighter.h"
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 
 // Constructor / Destructor
 Game::Game(BattleMode m,
