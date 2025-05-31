@@ -89,7 +89,7 @@ int Player::maxLaserBursts() const
     return maxB;
 }
 
-// Deployment phase
+// Deployment
 void Player::deployFleet()
 {
     std::cout << "\nCommander " << name << ", deploy your fleet.\n";
@@ -101,9 +101,7 @@ void Player::deployFleet()
 
         while (!placed)
         {
-            std::cout << "Place ship (size " << ship->getSize()
-                      << ", symbol '" << ship->getSymbol()
-                      << "')\nEnter start and end coordinates (e.g., a1 a5): ";
+            std::cout << "Place ship (size " << ship->getSize() << ", symbol '" << ship->getSymbol() << "')\nEnter start and end coordinates (e.g., a1 a5): ";
 
             char sStr[10], eStr[10];
             std::cin >> sStr >> eStr;
@@ -149,7 +147,7 @@ int Player::takeTurn(Player& enemy)
             std::cin >> coordStr;
 
             if (!parseCoordinate(coordStr, target) ||
-                targetBoard->isOccupied(target))         // already shot here
+                targetBoard->isOccupied(target)) // already shot here
             {
                 std::cout << "  Invalid or repeated. Try again.\n";
             }
@@ -160,14 +158,13 @@ int Player::takeTurn(Player& enemy)
         }
 
         bool hit = enemy.ownBoard->markHit(target);
-        char markChar = '0';                              // default = miss
+        char markChar = '0';
 
         if (hit)
         {
             ++hits;
             ++hitsThisTurn;
 
-            //locate the hit ship to update HP & get its symbol
             BattleShip* hitShip = 0;
             for (int i = 0; i < enemy.fleetSize && !hitShip; ++i)
             {
@@ -189,9 +186,7 @@ int Player::takeTurn(Player& enemy)
                 markChar = hitShip->getSymbol();
                 if (hitShip->isSunk())
                 {
-                    std::cout << "    >> " << enemy.getName()
-                              << "'s ship (size " << hitShip->getSize()
-                              << ") sunk!\n";
+                    std::cout << "    >> " << enemy.getName() << "'s ship (size " << hitShip->getSize() << ") sunk!\n";
                 }
             }
             else
@@ -211,7 +206,7 @@ int Player::takeTurn(Player& enemy)
 }
 
 
-// Reporting
+// Statistics
 const char* Player::getName() const { return name; }
 
 void Player::printStats() const
@@ -227,11 +222,11 @@ void Player::printStats() const
 
 void Player::printBoards(bool /*revealShips*/) const
 {
-    std::cout << "\n=== " << name << " OWN BOARD ===\n";
-    ownBoard->display(true);          // always reveal own ships
+    std::cout << "\n" << name << "    OWN BOARD\n";
+    ownBoard->display(true);
 
-    std::cout << "\n=== " << name << " TARGET BOARD ===\n";
-    targetBoard->display(true);       // show all info we discovered
+    std::cout << "\n" << name << "    TARGET BOARD\n";
+    targetBoard->display(true);
 }
 
 

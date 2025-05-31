@@ -39,10 +39,9 @@ bool Board::isOccupied(const Coordinate& coord) const
 }
 
 
-bool Board::placeShip(BattleShip* ship,
-                      const Coordinate& start,
-                      const Coordinate& end)
+bool Board::placeShip(BattleShip* ship, const Coordinate& start, const Coordinate& end)
 {
+    // one cell ship
     if (ship->getSize() == 1)
     {
         if (!isInside(start) || isOccupied(start) ||
@@ -50,43 +49,48 @@ bool Board::placeShip(BattleShip* ship,
             return false;
 
         grid[start.row][start.col] = ship->getSymbol();
-        ship->cells[0]             = start;
+        ship->cells[0] = start;
         return true;
     }
 
-    // Direction deltas
+    // directions
     int dRow = (end.row > start.row) ? 1 : (end.row < start.row ? -1 : 0);
     int dCol = (end.col > start.col) ? 1 : (end.col < start.col ? -1 : 0);
 
-    // Validate direction
-    if (dRow == 0 && dCol == 0) return false;
-    if (dRow != 0 && dCol != 0 && (dRow != dCol)) return false;
+    if (dRow == 0 && dCol == 0)
+        return false;
 
-    // Collect cells along the path
+    if (dRow != 0 && dCol != 0 && (dRow != dCol && dRow != -dCol))
+        return false;
+
     int length = 0;
     Coordinate cur = start;
     while (true)
     {
-        if (!isInside(cur) || isOccupied(cur)) return false;
+        if (!isInside(cur) || isOccupied(cur))
+            return false;
 
-        length = length + 1;
-        if (cur.row == end.row && cur.col == end.col) break;
+        ++length;
+        if (cur.row == end.row && cur.col == end.col)
+            break;
 
         cur.row += dRow;
         cur.col += dCol;
     }
 
-    // Compare the Length match and ship size
-    if (length != ship->getSize()) return false;
+    if (length != ship->getSize())
+        return false;
 
     cur = start;
-    int index = 0;
+    int idx = 0;
     while (true)
     {
         grid[cur.row][cur.col] = ship->getSymbol();
-        ship->cells[index++]   = cur;
+        ship->cells[idx++]     = cur;
 
-        if (cur.row == end.row && cur.col == end.col) break;
+        if (cur.row == end.row && cur.col == end.col)
+            break;
+
         cur.row += dRow;
         cur.col += dCol;
     }
