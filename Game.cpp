@@ -6,16 +6,8 @@
 #include <iostream>
 
 // Constructor / Destructor
-Game::Game(BattleMode m,
-           const char* name1,
-           const char* name2,
-           int r,
-           int c)
-        : mode(m),
-          currentPlayer(0),
-          rows(r),
-          cols(c)
-{
+Game::Game(BattleMode m, const char* name1, const char* name2, int r, int c) : mode(m), currentPlayer(0), rows(r), cols(c) {
+
     // Create players
     players[0] = new Player(name1, rows, cols);
     players[1] = new Player(name2, rows, cols);
@@ -27,8 +19,7 @@ Game::Game(BattleMode m,
     else                              { sd = 4; mc = 3; xw = 3; tie = 4; }
 
     // Add ships to both players
-    for (int p = 0; p < 2; ++p)
-    {
+    for (int p = 0; p < 2; ++p) {
         int id = 0;
         for (int i = 0; i < sd;  ++i) players[p]->addShip(new StarDestroyer(++id));
         for (int i = 0; i < mc;  ++i) players[p]->addShip(new MonCalamariCruiser(++id));
@@ -37,27 +28,32 @@ Game::Game(BattleMode m,
     }
 }
 
-Game::~Game()
-{
+Game::~Game() {
     delete players[0];
     delete players[1];
 }
 
-void Game::placementPhase()
-{
+void Game::placementPhase() {
     players[0]->deployFleet();
     players[1]->deployFleet();
 }
 
-void Game::battlePhase()
-{
-    while (!checkVictory())
-    {
+void Game::battlePhase() {
+
+    while (!checkVictory()) {
+
         Player* attacker = players[currentPlayer];
         Player* defender = players[1 - currentPlayer];
 
+        // BEFORE SHOOTING: Display both boards
+        std::cout << "\n--- " << attacker->getName() << "'s turn: CURRENT BOARDS ---\n";
         attacker->printBoards(false);
+
         int hitsThisTurn = attacker->takeTurn(*defender);
+
+        // AFTER SHOOTING: Show updated boards
+        std::cout << "\n--- " << attacker->getName() << "'s turn: UPDATED BOARDS ---\n";
+        attacker->printBoards(false);
 
         attacker->printStats();
         defender->printStats();
@@ -66,24 +62,18 @@ void Game::battlePhase()
             switchTurn();
     }
 
-    std::cout << "\n*** Victory! Commander "
-              << players[currentPlayer]->getName()
-              << " wins the battle! ***\n";
+    std::cout << "\n*** Victory!" << players[currentPlayer]->getName() << " wins the battle! ***\n";
 }
 
-bool Game::checkVictory() const
-{
-    return players[0]->remainingShips() == 0 ||
-           players[1]->remainingShips() == 0;
+bool Game::checkVictory() const {
+    return players[0]->remainingShips() == 0 || players[1]->remainingShips() == 0;
 }
 
-void Game::switchTurn()
-{
+void Game::switchTurn() {
     currentPlayer = 1 - currentPlayer;
 }
 
-void Game::start()
-{
+void Game::start() {
     placementPhase();
     battlePhase();
 }

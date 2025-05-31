@@ -160,8 +160,8 @@ int Player::takeTurn(Player& enemy) {
 
         if (hit) {
             char rowLabel = (char)('a' + target.row);
-            int  colLabel = target.col + 1;
-            std::cout << "Hit at ---> " << rowLabel << colLabel << "!\n";
+            int  colLabel = target.col;
+            std::cout <<"Hit at --> " << rowLabel << colLabel << "!\n";
         }
 
         char markChar = '0';
@@ -225,7 +225,7 @@ void Player::printStats() const {
     std::cout << name
               << "  |  Shots: "  << totalShots << "  Hits: " << hits << "  Misses: "  << misses
               << "  Remaining Ships: " << remainingShips()
-              << " (" << "5:" << sd << ' ' << "4:" << mc << ' ' << "3:" << xw << ' ' << "1:" << tie << ")\n";
+              << " (" << "StarDestroyer:" << sd << ' ' << "MonCalamariCruiser:" << mc << ' ' << "XWingSquadron:" << xw << ' ' << "TIEFighter:" << tie << ")\n";
 }
 
 void Player::printBoards(bool) const {
