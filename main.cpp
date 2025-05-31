@@ -25,30 +25,30 @@ int main()
     }
 
     // Commander names
-    char name1[50];
-    char name2[50];
+    char plyr1[50];
+    char plyr2[50];
     std::cout << "Enter Rebel commander name: ";
-    std::cin  >> name1;
+    std::cin >> plyr1;
     std::cout << "Enter Imperial commander name: ";
-    std::cin  >> name2;
+    std::cin >> plyr2;
 
     // Randomly choose who starts
     std::srand((int)std::time(0));
-    int first = std::rand() % 2; // 0 → Rebel starts, 1 → Imperial starts
+    int first = std::rand() % 2; // 0: Rebel starts, 1:Imperial starts
 
     if (first == 1)
     {
         // swap names so that player[1] can start first (instead Player[0])
         char temp[50];
-        std::strcpy(temp, name1);
-        std::strcpy(name1, name2);
-        std::strcpy(name2, temp);
+        std::strcpy(temp, plyr1);
+        std::strcpy(plyr1, plyr2);
+        std::strcpy(plyr2, temp);
     }
 
-    std::cout << "\n>> " << name1 << " will start the game!\n";
+    std::cout << "\n>> " << plyr1 << " will start the game!\n";
 
-    // ------------- Start the game -------------
-    Game game(mode, name1, name2, rows, cols);
+    // Start the game
+    Game game(mode, plyr1, plyr2, rows, cols);
     game.start();
 
     return 0;

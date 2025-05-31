@@ -12,7 +12,7 @@ Board::Board(int r, int c) : rows(r), cols(c)
         grid[i] = new char[cols];
         for (int j = 0; j < cols; ++j)
         {
-            grid[i][j] = '.';  // Empty cell
+            grid[i][j] = '*';  // Empty cell
         }
     }
 }
@@ -35,7 +35,7 @@ bool Board::isInside(const Coordinate& coord) const
 
 bool Board::isOccupied(const Coordinate& coord) const
 {
-    return grid[coord.row][coord.col] != '.';
+    return grid[coord.row][coord.col] != '*';
 }
 
 
@@ -103,7 +103,7 @@ bool Board::markHit(const Coordinate& coord) {
 
     char &cell = grid[coord.row][coord.col];
 
-    if (cell == '.') {
+    if (cell == '*') {
         cell = '0';
         return false;
     }
@@ -139,7 +139,7 @@ void Board::display(bool revealShips) const
         {
             char ch = grid[r][c];
             if (!revealShips && ch >= '1' && ch <= '9')
-                ch = '.';
+                ch = '*';
 
             std::cout << ch << ' ';
         }

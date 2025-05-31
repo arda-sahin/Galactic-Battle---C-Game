@@ -127,9 +127,8 @@ void Player::deployFleet()
     }
 }
 
-// Shooting phase – returns hits in this turn
-int Player::takeTurn(Player& enemy)
-{
+// Shooting phase
+int Player::takeTurn(Player& enemy) {
     int shotsAllowed = maxLaserBursts();
     std::cout << "\n" << name << " shoots (" << shotsAllowed << " shots):\n";
 
@@ -158,10 +157,16 @@ int Player::takeTurn(Player& enemy)
         }
 
         bool hit = enemy.ownBoard->markHit(target);
+
+        if (hit) {
+            char rowLabel = (char)('a' + target.row);
+            int  colLabel = target.col + 1;
+            std::cout << "Hit at ---> " << rowLabel << colLabel << "!\n";
+        }
+
         char markChar = '0';
 
-        if (hit)
-        {
+        if (hit) {
             ++hits;
             ++hitsThisTurn;
 
@@ -180,28 +185,32 @@ int Player::takeTurn(Player& enemy)
                 }
             }
 
-            if (hitShip)
-            {
+            if (hitShip) {
                 hitShip->registerHit();
                 markChar = hitShip->getSymbol();
-                if (hitShip->isSunk())
-                {
+
+                if (hitShip->isSunk()) {
                     std::cout << "    >> " << enemy.getName() << "'s ship (size " << hitShip->getSize() << ") sunk!\n";
+
+                    // mark All cells of the sunk ship on target board
+                    for (int k = 0; k < hitShip->getSize(); ++k) {
+                        Coordinate sc = hitShip->cells[k];
+                        targetBoard->setCell(sc, hitShip->getSymbol());
+                    }
                 }
+
             }
-            else
-            {
+            else {
                 markChar = '1';
             }
         }
-        else
-        {
+        else {
             ++misses;
         }
-
         targetBoard->setCell(target, markChar);
         ++totalShots;
     }
+
     return hitsThisTurn;
 }
 
@@ -209,8 +218,7 @@ int Player::takeTurn(Player& enemy)
 // Statistics
 const char* Player::getName() const { return name; }
 
-void Player::printStats() const
-{
+void Player::printStats() const {
     int sd, mc, xw, tie;
     countRemainingTypes(sd, mc, xw, tie);
 
@@ -220,8 +228,7 @@ void Player::printStats() const
               << " (" << "5:" << sd << ' ' << "4:" << mc << ' ' << "3:" << xw << ' ' << "1:" << tie << ")\n";
 }
 
-void Player::printBoards(bool /*revealShips*/) const
-{
+void Player::printBoards(bool) const {
     std::cout << "\n" << name << "    OWN BOARD\n";
     ownBoard->display(true);
 
