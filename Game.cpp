@@ -37,8 +37,6 @@ Game::Game(BattleMode m,
         for (int i = 0; i < xw;  ++i) players[p]->addShip(new XWingSquadron(++id));
         for (int i = 0; i < tie; ++i) players[p]->addShip(new TIEFighter(++id));
     }
-
-    std::srand((int)std::time(0));   // Seed RNG once
 }
 
 Game::~Game()
@@ -63,8 +61,6 @@ void Game::battlePhase()
         attacker->printBoards(false);
         int hitsThisTurn = attacker->takeTurn(*defender);
 
-        applyDiceEffect(*attacker, hitsThisTurn);
-
         attacker->printStats();
         defender->printStats();
 
@@ -75,25 +71,6 @@ void Game::battlePhase()
     std::cout << "\n*** Victory! Commander "
               << players[currentPlayer]->getName()
               << " wins the battle! ***\n";
-}
-
-
-// Dice mechanic: if ≥2 hits → 1/6 chance to skip next turn
-void Game::applyDiceEffect(Player& attacker, int hitsThisTurn)
-{
-    if (hitsThisTurn < 2) return;
-
-    int roll = (std::rand() % 6) + 1;
-    std::cout << "  > Dice rolled: " << roll << "\n";
-    if (roll == 1)
-    {
-        std::cout << "  > Penalty: weapons overheated, next turn skipped.\n";
-        attacker.setSkip(true);
-    }
-    else
-    {
-        std::cout << "  > No special effect.\n";
-    }
 }
 
 bool Game::checkVictory() const

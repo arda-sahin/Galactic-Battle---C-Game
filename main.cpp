@@ -1,9 +1,12 @@
 #include "Game.h"
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <cstring>
 
 int main()
 {
-    // --- Mode selection ---
+    //Mode selection
     std::cout << "Select Battle Mode:\n"
               << "1) The Swiftstrike (5x8)\n"
               << "2) The Starlight Clash (8x10)\n"
@@ -21,7 +24,7 @@ int main()
         default: mode = SWIFTSTRIKE;      rows = 5;  cols = 8;  break;
     }
 
-    // --- Commander names ---
+    // Commander names
     char name1[50];
     char name2[50];
     std::cout << "Enter Rebel commander name: ";
@@ -29,7 +32,22 @@ int main()
     std::cout << "Enter Imperial commander name: ";
     std::cin  >> name2;
 
-    // Start the game
+    // Randomly choose who starts
+    std::srand((int)std::time(0));
+    int first = std::rand() % 2; // 0 → Rebel starts, 1 → Imperial starts
+
+    if (first == 1)
+    {
+        // swap names so that player[1] can start first (instead Player[0])
+        char temp[50];
+        std::strcpy(temp, name1);
+        std::strcpy(name1, name2);
+        std::strcpy(name2, temp);
+    }
+
+    std::cout << "\n>> " << name1 << " will start the game!\n";
+
+    // ------------- Start the game -------------
     Game game(mode, name1, name2, rows, cols);
     game.start();
 

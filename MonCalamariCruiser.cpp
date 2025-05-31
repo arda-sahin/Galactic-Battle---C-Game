@@ -8,5 +8,4 @@ MonCalamariCruiser::MonCalamariCruiser(int id)
 
 void MonCalamariCruiser::shoot(Board& target)
 {
-    // TODO: Implement Mon Calamari Cruiser firing behaviour
 }

@@ -7,7 +7,7 @@ class StarDestroyer : public BattleShip
 {
 public:
     StarDestroyer(int id);
-    void shoot(Board& target) override;  // Specific firing behaviour
+    void shoot(Board& target) override;
 };
 
 #endif //A3_STARDESTROYER_H

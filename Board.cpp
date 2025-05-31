@@ -5,14 +5,14 @@
 // Constructor
 Board::Board(int r, int c) : rows(r), cols(c)
 {
-    // Allocate 2-D grid
+    // Initialize grid
     grid = new char*[rows];
     for (int i = 0; i < rows; ++i)
     {
         grid[i] = new char[cols];
         for (int j = 0; j < cols; ++j)
         {
-            grid[i][j] = '.';    // Empty cell indicator
+            grid[i][j] = '.';  // Empty cell
         }
     }
 }
@@ -69,17 +69,16 @@ bool Board::placeShip(BattleShip* ship,
     {
         if (!isInside(cur) || isOccupied(cur)) return false;
 
-        ++length;
+        length = length + 1;
         if (cur.row == end.row && cur.col == end.col) break;
 
         cur.row += dRow;
         cur.col += dCol;
     }
 
-    // Length must match ship size
+    // Compare the Length match and ship size
     if (length != ship->getSize()) return false;
 
-    // Second pass: actually place the ship
     cur = start;
     int index = 0;
     while (true)

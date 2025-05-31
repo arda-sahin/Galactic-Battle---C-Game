@@ -6,8 +6,8 @@ struct Coordinate
     int row;
     int col;
 
-    Coordinate();                       // Default constructor
-    Coordinate(int r, int c);           // Custom constructor
+    Coordinate(); // Default constructor
+    Coordinate(int r, int c); // Constructor
 };
 
 #endif //A3_COORDINATE_H

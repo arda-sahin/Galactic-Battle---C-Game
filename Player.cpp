@@ -202,7 +202,7 @@ int Player::takeTurn(Player& enemy)
                 {
                     std::cout << "    >> " << enemy.getName()
                               << "'s ship (size " << hitShip->getSize()
-                              << ") sunk!\n";
+                              << ") status!\n";
                 }
             }
             else

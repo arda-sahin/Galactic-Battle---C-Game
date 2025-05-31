@@ -20,7 +20,6 @@ private:
     int         rows;
     int         cols;
 
-    // Internal phases
     void placementPhase();
     void battlePhase();
     void applyDiceEffect(Player& attacker, int hitsThisTurn);

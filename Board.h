@@ -3,14 +3,14 @@
 
 #include "Coordinate.h"
 
-class BattleShip;      // Forward declaration
+class BattleShip;
 
 class Board
 {
 private:
     int   rows;
     int   cols;
-    char** grid;        // Dynamic 2-D char array
+    char** grid;
 
 public:
     Board(int r, int c);
@@ -23,11 +23,11 @@ public:
     bool isInside(const Coordinate& coord)  const;
     bool isOccupied(const Coordinate& coord) const;
 
-    bool markHit(const Coordinate& coord);     // Returns true if a ship cell is hit
+    bool markHit(const Coordinate& coord);  // Returns true if a ship cell is hit
     char getCell(const Coordinate& coord) const;
     void setCell(const Coordinate& coord, char value);
 
-    void display(bool revealShips) const;      // Prints the board
+    void display(bool revealShips) const; // Prints the board
 
     int  getRows() const;
     int  getCols() const;

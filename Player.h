@@ -26,7 +26,7 @@ public:
 
     void addShip(BattleShip* ship);
     void deployFleet();
-    int  takeTurn(Player& enemy);        // returns hits this turn
+    int  takeTurn(Player& enemy); // returns hits this turn
 
     int  remainingShips() const;
     int  getMaxOperativeBursts() const;

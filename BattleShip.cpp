@@ -1,17 +1,15 @@
 #include "BattleShip.h"
-#include <cstring>   // For memset (if needed)
 
 BattleShip::BattleShip(int sz, int hits, int bursts, char sym, int id)
         : size(sz),
           hitsToDestroy(hits),
           laserBursts(bursts),
           cells(nullptr),
-          sunk(false),
+          status(false),
           hitCount(0),
-          shipId(id),
           symbol(sym)
 {
-    // Allocate array for ship coordinates; will be filled during placement
+    // Allocate array for ship coordinates
     cells = new Coordinate[size];
 }
 
@@ -22,7 +20,7 @@ BattleShip::~BattleShip()
 
 bool BattleShip::isSunk() const
 {
-    return sunk;
+    return status;
 }
 
 int BattleShip::getLaserBursts() const
@@ -42,9 +40,9 @@ int BattleShip::getSize() const
 
 void BattleShip::registerHit()
 {
-    ++hitCount;
+    hitCount = hitCount + 1;
     if (hitCount >= hitsToDestroy)
     {
-        sunk = true;
+        status = true; //sunk
     }
 }
