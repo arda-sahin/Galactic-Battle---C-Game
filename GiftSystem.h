@@ -11,10 +11,8 @@
 class GiftSystem
 {
 public:
-    static bool applyGift(Player* attacker,
-                          Player* defender,
-                          BattleMode mode,
-                          int hitsThisTurn);
+    // Applies a gift effect and returns true if it was applied
+    static bool applyGift(Player* attacker, Player* defender, BattleMode mode, int hitsThisTurn);
 };
 
 

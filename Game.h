@@ -27,8 +27,8 @@ private:
 
 public:
     Game(BattleMode mode,
-         const char* name1,
-         const char* name2,
+         const char* p1,
+         const char* p2,
          int rows,
          int cols);
     ~Game();

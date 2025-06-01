@@ -43,7 +43,7 @@ public:
     void setLimitOneNextTurn();
     void setReduceOneNextTurn();
 
-    int  getFleetSize() const;
+    int getFleetSize() const;
 };
 
 #endif

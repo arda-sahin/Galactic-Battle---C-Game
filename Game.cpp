@@ -6,32 +6,86 @@
 #include "GiftSystem.h"
 #include <iostream>
 
+using namespace std;
+
 // Constructor / Destructor
-Game::Game(BattleMode m, const char* name1, const char* name2, int r, int c) : mode(m), currentPlayer(0), rows(r), cols(c) {
+Game::Game(BattleMode m, const char* p1, const char* p2, int r, int c)
+{
+    // Set game mode and initial values
+    mode = m;
+    currentPlayer = 0;
+    rows = r; cols = c;
 
-    // Create players
-    players[0] = new Player(name1, rows, cols);
-    players[1] = new Player(name2, rows, cols);
+    // Create two players with given names and board size
+    players[0] = new Player(p1, rows, cols);
+    players[1] = new Player(p2, rows, cols);
 
-    // Fleet composition based on chosen mode
-    int sd, mc, xw, tie;
+    // Determine number of ships for each type based on mode
+    int sd;
+    int mc;
+    int xw;
+    int tie;
     if (mode == SWIFTSTRIKE) {
-        sd = 1; mc = 1; xw = 1; tie = 2;
+        sd = 1;
+        mc = 1;
+        xw = 1;
+        tie = 2;
     }
     else if (mode == STARLIGHT_CLASH) {
-        sd = 2; mc = 2; xw = 2; tie = 4;
+        sd = 2;
+        mc = 2;
+        xw = 2;
+        tie = 4;
     }
     else {
-        sd = 4; mc = 3; xw = 3; tie = 4;
+        sd = 4;
+        mc = 3;
+        xw = 3;
+        tie = 4;
     }
 
-    // Add ships to both players
-    for (int p = 0; p < 2; p++) {
+    // Add ships to each player
+    int p = 0;
+    while (p < 2) {
         int id = 0;
-        for (int i = 0; i < sd; ++i) players[p]->addShip(new StarDestroyer(++id));
-        for (int i = 0; i < mc; ++i) players[p]->addShip(new MonCalamariCruiser(++id));
-        for (int i = 0; i < xw; ++i) players[p]->addShip(new XWingSquadron(++id));
-        for (int i = 0; i < tie; ++i) players[p]->addShip(new TIEFighter(++id));
+        int i = 0;
+
+        // Add Star Destroyers
+        while (i < sd) {
+            id = id + 1;
+            StarDestroyer* ship = new StarDestroyer(id);
+            players[p]->addShip(ship);
+            i = i + 1;
+        }
+
+        // Add Mon Calamari Cruisers
+        i = 0;
+        while (i < mc) {
+            id = id + 1;
+            MonCalamariCruiser* ship = new MonCalamariCruiser(id);
+            players[p]->addShip(ship);
+            i = i + 1;
+        }
+
+        // Add X-Wing Squadrons
+        i = 0;
+        while (i < xw) {
+            id = id + 1;
+            XWingSquadron* ship = new XWingSquadron(id);
+            players[p]->addShip(ship);
+            i = i + 1;
+        }
+
+        // Add TIE Fighters
+        i = 0;
+        while (i < tie) {
+            id = id + 1;
+            TIEFighter* ship = new TIEFighter(id);
+            players[p]->addShip(ship);
+            i = i + 1;
+        }
+
+        p = p + 1;
     }
 }
 
@@ -53,7 +107,7 @@ void Game::battlePhase() {
         Player* defender = players[1 - currentPlayer];
 
         // BEFORE SHOOTING: Display both boards
-        std::cout << "\n--- " << attacker->getName() << "'s turn: CURRENT BOARDS ---\n";
+        cout << "\n--- " << attacker->getName() << "'s turn: CURRENT BOARDS ---\n";
         attacker->printBoards(false);
 
         int hitsThisTurn = attacker->takeTurn(*defender);
@@ -63,7 +117,7 @@ void Game::battlePhase() {
             break;
 
         // AFTER SHOOTING: Show updated boards
-        std::cout << "\n--- " << attacker->getName() << "'s turn: UPDATED BOARDS ---\n";
+        cout << "\n--- " << attacker->getName() << "'s turn: UPDATED BOARDS ---\n";
         attacker->printBoards(false);
 
         attacker->printStats();
@@ -75,11 +129,11 @@ void Game::battlePhase() {
         if (!checkVictory() && !extraTurn)
             switchTurn();
         else if (extraTurn)
-            std::cout << "--Extra turn!\n";
+            cout << "--Extra turn!\n";
 
     }
 
-    std::cout << "\n*** Victory!" << players[currentPlayer]->getName() << " wins the battle! ***\n";
+    cout << "\n*** Victory!" << players[currentPlayer]->getName() << " wins the battle! ***\n";
 }
 
 bool Game::checkVictory() const {

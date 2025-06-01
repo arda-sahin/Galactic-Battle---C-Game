@@ -2,90 +2,147 @@
 #include <iostream>
 #include <cstring>
 
+using namespace std;
+
+// Parses a coordinate string like "a0", "b12", etc. Returns true on success.
 static bool parseCoordinate(const char* str, Coordinate& out)
 {
-    if (str == 0 || str[0] == '\0' || str[1] == '\0')
-        return false;
-
+    // Check for null pointer
+    if (str == nullptr){
+        return false;}
+    // Check that there is at least one character
+    if (str[0] == '\0') {
+        return false;}
+    // Check that there is at least a second character
+    if (str[1] == '\0') {
+        return false;}
+    // First character should be a lowercase letter for the row
     char rowChar = str[0];
-    if (rowChar < 'a' || rowChar > 'z')
-        return false;
+    if (rowChar < 'a') {
+        return false;}
+    if (rowChar > 'z') {
+        return false;}
 
+    // column part
     int col = 0;
-    for (int i = 1; str[i] != '\0'; ++i)
-    {
-        if (str[i] < '0' || str[i] > '9')
-            return false;
-        col = col * 10 + (str[i] - '0');
+    int i = 1;
+
+    while (str[i] != '\0') {
+        char digitChar = str[i];
+        if (digitChar < '0') {
+            return false;}
+        if (digitChar > '9') {
+            return false;}
+
+        int digit = digitChar - '0';
+        col = col * 10 + digit;
+        i = i + 1;
     }
 
-    out.row = rowChar - 'a';
+    int row = rowChar - 'a';
+    out.row = row;
     out.col = col;
     return true;
 }
 
-// Constructor / Destructor
+// constructor
 Player::Player(const char* playerName, int rows, int cols)
-        : ownBoard(0), targetBoard(0), fleetSize(0), totalShots(0), hits(0), misses(0), limitOneNextTurn(false), reduceOneNextTurn(false)
+        : ownBoard(nullptr),
+          targetBoard(nullptr),
+          fleetSize(0),
+          totalShots(0),
+          hits(0),
+          misses(0),
+          limitOneNextTurn(false),
+          reduceOneNextTurn(false)
 {
-    std::memset(name, 0, 50);
-    if (playerName != 0)
-        std::strncpy(name, playerName, 50 - 1);
+    if (playerName != nullptr) {
+        strcpy(name, playerName);
+    } else {
+        name[0] = '\0';
+    }
 
     ownBoard    = new Board(rows, cols);
     targetBoard = new Board(rows, cols);
 }
 
+
 Player::~Player()
 {
     delete ownBoard;
     delete targetBoard;
-    for (int i = 0; i < fleetSize; ++i)
+    for (int i = 0; i < fleetSize; i++)
         delete fleet[i];
 }
 
-// Fleet management
-void Player::addShip(BattleShip* ship) {
-
-    if (fleetSize < 20 && ship != 0)
-        fleet[fleetSize++] = ship;
-}
-
-int Player::remainingShips() const {
-    int cnt = 0;
-    for (int i = 0; i < fleetSize; ++i)
-        if (!fleet[i]->isSunk()) ++cnt;
-    return cnt;
-}
-
-void Player::countRemainingTypes(int& sd,int& mc,int& xw,int& tie) const {
-    sd = mc = xw = tie = 0;
-    for (int i = 0; i < fleetSize; ++i) {
-
-        if (fleet[i]->isSunk()) continue;
-
-        char sym = fleet[i]->getSymbol();
-        if      (sym == '5') ++sd;
-        else if (sym == '4') ++mc;
-        else if (sym == '3') ++xw;
-        else if (sym == '1') ++tie;
+// Adds a ship
+void Player::addShip(BattleShip* ship)
+{
+    // Check that fleetSize is less than maximum (20) and ship is not null
+    if (fleetSize < 20 && ship != nullptr)
+    {
+        fleet[fleetSize] = ship;
+        fleetSize = fleetSize + 1;
     }
 }
 
+// Returns the number of ships that have not been sunk
+int Player::remainingShips() const{
+    int cnt = 0;
+    for (int i = 0; i < fleetSize; i = i + 1) {
+        if (fleet[i]->isSunk() == false) {
+            cnt = cnt + 1;
+        }
+    }
+    return cnt;
+}
+
+void Player::countRemainingTypes(int& sd, int& mc, int& xw, int& tie) const
+{
+    //counters to zero
+    sd = 0;
+    mc = 0;
+    xw = 0;
+    tie = 0;
+
+    // Loop over all ships in the fleet
+    for (int i = 0; i < fleetSize; i = i + 1) {
+        // Check if this ship is sunk
+        bool sunk = fleet[i]->isSunk();
+        if (sunk)
+        {
+            // Skip sunk ships
+        }
+        else {
+            // Get the symbol for the ship type
+            char sym = fleet[i]->getSymbol();
+
+            if (sym == '5')
+                sd = sd + 1;
+            else if (sym == '4')
+                mc = mc + 1;
+            else if (sym == '3')
+                xw = xw + 1;
+            else if (sym == '1')
+                tie = tie + 1;
+        }
+    }
+}
+
+
 int Player::maxLaserBursts() const {
 
-    int maxB = 0;
+    int maxBurst = 0;
     for (int i = 0; i < fleetSize; ++i)
-        if (!fleet[i]->isSunk() &&
-            fleet[i]->getLaserBursts() > maxB)
-            maxB = fleet[i]->getLaserBursts();
-    return maxB;
+        if (!fleet[i]->isSunk() && fleet[i]->getLaserBursts() > maxBurst)
+            maxBurst = fleet[i]->getLaserBursts();
+    return maxBurst;
 }
 
 // Deployment
 void Player::deployFleet() {
 
-    std::cout << "\nCommander " << name << ", deploy your fleet.\n";
+    cout << "\n" << name << ", deploy your ships.\n";
 
     for (int i = 0; i < fleetSize; ++i) {
 
@@ -93,32 +150,28 @@ void Player::deployFleet() {
         bool placed = false;
 
         while (!placed) {
-            std::cout << "Place ship (size " << ship->getSize() << ", symbol '" << ship->getSymbol() << "')\nEnter start and end coordinates (Example: a0 a4): ";
+            cout << "Place ship (size " << ship->getSize() << ", symbol '" << ship->getSymbol() << "')\nEnter start and end coordinates (Example: a0 a4): ";
 
             char sStr[10], eStr[10];
-            std::cin >> sStr >> eStr;
+            cin >> sStr >> eStr;
 
             Coordinate start, end;
-            if (!parseCoordinate(sStr, start) ||
-                !parseCoordinate(eStr, end))
-            {
-                std::cout << "Invalid input. Try again.\n";
+            if (!parseCoordinate(sStr, start) || !parseCoordinate(eStr, end)) {
+                cout << "Invalid input. Try again.\n";
                 continue;
             }
-
             if (ownBoard->placeShip(ship, start, end)) {
                 ownBoard->display(true);
                 placed = true;
             }
             else {
-                std::cout << "Cannot place there. Try again.\n";
-            }
+                cout << "Cannot place there. Try again.\n";}
         }
     }
 }
 
 // Shooting phase
-int Player::takeTurn(Player& enemy) {
+int Player::takeTurn(Player& enemy){
 
     int shotsAllowed = maxLaserBursts();
 
@@ -133,28 +186,24 @@ int Player::takeTurn(Player& enemy) {
         reduceOneNextTurn = false;
     }
 
-    std::cout << "\n" << name << " shoots (" << shotsAllowed << " shots):\n";
+    cout << "\n" << name << " shoots (" << shotsAllowed << " shots):\n";
 
     int hitsThisTurn = 0;
-    for (int s = 0; s < shotsAllowed; ++s)
+    for (int s = 0; s < shotsAllowed; s++)
     {
-        char coordStr[10];
+        char crd[10];
         Coordinate target;
         bool valid = false;
 
         while (!valid) {
-            std::cout << "  Shot #" << (s + 1) << ": ";
-            std::cin >> coordStr;
+            cout << "  Shot: " << (s + 1) << ": ";
+            cin >> crd;
 
-            if (!parseCoordinate(coordStr, target) ||
-                targetBoard->isOccupied(target)) // already shot here
+            if (!parseCoordinate(crd, target) || targetBoard->isOccupied(target)) // already shot here
             {
-                std::cout << "  Invalid or repeated. Try again.\n";
-            }
-            else
-            {
-                valid = true;
-            }
+                cout << "  Invalid or repeated. Try again.\n";}
+            else{
+                valid = true;}
         }
 
         bool hit = enemy.ownBoard->markHit(target);
@@ -162,54 +211,76 @@ int Player::takeTurn(Player& enemy) {
         if (hit) {
             char rowLabel = (char)('a' + target.row);
             int  colLabel = target.col;
-            std::cout <<"Hit at --> " << rowLabel << colLabel << "!\n";
+            cout <<"Hit at --> " << rowLabel << colLabel << "!\n";
         }
 
         char markChar = '0';
 
-        if (hit) {
-            ++hits;
-            ++hitsThisTurn;
+// If a hit on the target cell
+        if (hit == true) {
+            hits = hits + 1; // Increment total hits
+            hitsThisTurn = hitsThisTurn + 1; // Increment hits
 
-            BattleShip* hitShip = 0;
-            for (int i = 0; i < enemy.fleetSize && !hitShip; ++i)
-            {
-                BattleShip* ship = enemy.fleet[i];
-                for (int c = 0; c < ship->getSize(); ++c)
+            BattleShip* hitShip;
+            hitShip = nullptr;
+
+            // Search enemy ship
+            int i = 0;
+            while (i < enemy.fleetSize){
+                if (hitShip == nullptr){
+                    BattleShip* ship;
+                    ship = enemy.fleet[i];
+
+                    int c = 0;
+                    // Check each cell of this ship
+                    while (c < ship->getSize()){
+                        Coordinate cell;
+                        cell = ship->cells[c];
+
+                        // Compare the row and column with target coordinate
+                        if (cell.row == target.row) {
+                            if (cell.col == target.col) {
+                                // Found the ship that was hit
+                                hitShip = ship;
+                                break;
+                            }
+                        }
+                        c++;
+                    }
+                }
+                i++;
+            }
+
+            // If a ship was found at the target cell
+            if (hitShip != nullptr) {
+                hitShip->registerHit(); // Register the hit on that ship
+                markChar = hitShip->getSymbol(); // Use ship's symbol for marking
+
+                // If the ship is now sunk
+                if (hitShip->isSunk() == true)
                 {
-                    Coordinate cell = ship->cells[c];
-                    if (cell.row == target.row && cell.col == target.col)
-                    {
-                        hitShip = ship;
-                        break;
-                    }
-                }
-            }
+                    // Print a message
+                    cout << "    >> "; cout << enemy.getName(); cout << "'s ship (size ";
+                    cout << hitShip->getSize(); cout << ") sunk!\n";
 
-            if (hitShip) {
-                hitShip->registerHit();
-                markChar = hitShip->getSymbol();
-
-                if (hitShip->isSunk()) {
-                    std::cout << "    >> " << enemy.getName() << "'s ship (size " << hitShip->getSize() << ") sunk!\n";
-
-                    // mark All cells of the sunk ship on target board
-                    for (int k = 0; k < hitShip->getSize(); ++k) {
-                        Coordinate sc = hitShip->cells[k];
+                    // Mark all cells of the sunk ship on the target board
+                    int k = 0;
+                    while (k < hitShip->getSize()) {
+                        Coordinate sc;
+                        sc = hitShip->cells[k];
                         targetBoard->setCell(sc, hitShip->getSymbol());
+                        k++;
                     }
                 }
-
             }
-            else {
-                markChar = '1';
-            }
+            else{
+                // No ship found at that cell, mark as a miss symbol '1'
+                markChar = '1';}
         }
         else {
-            ++misses;
-        }
+            misses++; }
         targetBoard->setCell(target, markChar);
-        ++totalShots;
+        totalShots++;
 
         //  If enemy has no ships left, stop the loop
         if (enemy.remainingShips() == 0){
@@ -220,25 +291,26 @@ int Player::takeTurn(Player& enemy) {
     return hitsThisTurn;
 }
 
-
 // Statistics
-const char* Player::getName() const { return name; }
+const char* Player::getName() const {
+    return name;
+}
 
 void Player::printStats() const {
     int sd, mc, xw, tie;
     countRemainingTypes(sd, mc, xw, tie);
 
-    std::cout << name
+    cout << name
               << "  |  Shots: "  << totalShots << "  Hits: " << hits << "  Misses: "  << misses
               << "  Remaining Ships: " << remainingShips()
               << " (" << "StarDestroyer:" << sd << ' ' << "MonCalamariCruiser:" << mc << ' ' << "XWingSquadron:" << xw << ' ' << "TIEFighter:" << tie << ")\n";
 }
 
 void Player::printBoards(bool) const {
-    std::cout << "\n" << name << "    OWN BOARD\n";
+    cout << "\n" << name << "    OWN BOARD\n";
     ownBoard->display(true);
 
-    std::cout << "\n" << name << "    TARGET BOARD\n";
+    cout << "\n" << name << "    TARGET BOARD\n";
     targetBoard->display(true);
 }
 

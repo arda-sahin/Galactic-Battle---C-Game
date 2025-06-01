@@ -4,49 +4,58 @@
 #include <ctime>
 #include <cstring>
 
+using namespace std;
 
 int main()
 {
     //Mode selection
-    std::cout << "Select Battle Mode:\n"
-              << "1) The Swiftstrike (5x8)\n"
-              << "2) The Starlight Clash (8x10)\n"
-              << "3) Wrath of Titans (10x12)\n"
+    cout << "Select Battle Mode:\n"
+              << "1) The Swiftstrike\n"
+              << "2) The Starlight Clash\n"
+              << "3) Wrath of Titans\n"
               << "Choice: ";
-    int choice = 1;
-    std::cin >> choice;
+    int choice;
+    cin >> choice;
 
     BattleMode mode;
     int rows, cols;
-    switch (choice)
-    {
-        case 2:  mode = STARLIGHT_CLASH;  rows = 8;  cols = 10; break;
-        case 3:  mode = WRATH_OF_TITANS;  rows = 10; cols = 12; break;
-        default: mode = SWIFTSTRIKE;      rows = 5;  cols = 8;  break;
+
+    if (choice == 2) {
+        mode = STARLIGHT_CLASH;
+        rows = 8;
+        cols = 10;
     }
+    else if (choice == 3) {
+        mode = WRATH_OF_TITANS;
+        rows = 10;
+        cols = 12;
+    }
+    else {
+        mode = SWIFTSTRIKE;
+        rows = 5;
+        cols = 8;
+    }
+
 
     // Commander names
     char plyr1[50];
     char plyr2[50];
-    std::cout << "Enter Rebel commander name: ";
-    std::cin >> plyr1;
-    std::cout << "Enter Imperial commander name: ";
-    std::cin >> plyr2;
+    cout << "Enter Rebel commander name: "; cin >> plyr1;
+    cout << "Enter Imperial commander name: "; cin >> plyr2;
 
     // Randomly choose who starts
-    std::srand((int)std::time(0));
-    int first = std::rand() % 2; // 0: Rebel starts, 1:Imperial starts
+    srand((int)time(0));
+    int first = rand() % 2; // 0: Rebel starts, 1:Imperial starts
 
-    if (first == 1)
-    {
+    if (first == 1) {
         // swap names so that player[1] can start first (instead Player[0])
         char temp[50];
-        std::strcpy(temp, plyr1);
-        std::strcpy(plyr1, plyr2);
-        std::strcpy(plyr2, temp);
+        strcpy(temp, plyr1);
+        strcpy(plyr1, plyr2);
+        strcpy(plyr2, temp);
     }
 
-    std::cout << "\n>> " << plyr1 << " will start the game!\n";
+    cout << "\n>> " << plyr1 << " will start the game!\n";
 
     // Start the game
     Game game(mode, plyr1, plyr2, rows, cols);
