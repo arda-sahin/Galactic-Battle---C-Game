@@ -3,6 +3,7 @@
 #include "MonCalamariCruiser.h"
 #include "XWingSquadron.h"
 #include "TIEFighter.h"
+#include "GiftSystem.h"
 #include <iostream>
 
 // Constructor / Destructor
@@ -58,8 +59,14 @@ void Game::battlePhase() {
         attacker->printStats();
         defender->printStats();
 
-        if (!checkVictory())
+        // Gift system
+        bool extraTurn = GiftSystem::applyGift(attacker, defender, mode, hitsThisTurn);
+
+        if (!checkVictory() && !extraTurn)
             switchTurn();
+        else if (extraTurn)
+            std::cout << "--Extra turn!\n";
+
     }
 
     std::cout << "\n*** Victory!" << players[currentPlayer]->getName() << " wins the battle! ***\n";

@@ -31,7 +31,9 @@ Player::Player(const char* playerName, int rows, int cols)
           fleetSize(0),
           totalShots(0),
           hits(0),
-          misses(0)
+          misses(0),
+          limitOneNextTurn(false),
+          reduceOneNextTurn(false)
 {
     std::memset(name, 0, 50);
     if (playerName != 0)
@@ -101,7 +103,7 @@ void Player::deployFleet()
 
         while (!placed)
         {
-            std::cout << "Place ship (size " << ship->getSize() << ", symbol '" << ship->getSymbol() << "')\nEnter start and end coordinates (e.g., a1 a5): ";
+            std::cout << "Place ship (size " << ship->getSize() << ", symbol '" << ship->getSymbol() << "')\nEnter start and end coordinates (Example: a0 a4): ";
 
             char sStr[10], eStr[10];
             std::cin >> sStr >> eStr;
@@ -129,11 +131,23 @@ void Player::deployFleet()
 
 // Shooting phase
 int Player::takeTurn(Player& enemy) {
+
     int shotsAllowed = maxLaserBursts();
+
+    if (limitOneNextTurn) // force single shot
+    {
+        shotsAllowed = 1;
+        limitOneNextTurn = false;
+    }
+    else if (reduceOneNextTurn)  // minus one shot
+    {
+        if (shotsAllowed > 1) shotsAllowed -= 1;
+        reduceOneNextTurn = false;
+    }
+
     std::cout << "\n" << name << " shoots (" << shotsAllowed << " shots):\n";
 
     int hitsThisTurn = 0;
-
     for (int s = 0; s < shotsAllowed; ++s)
     {
         char coordStr[10];
@@ -243,3 +257,11 @@ Board* Player::getOwnBoard() const {
 Board* Player::getTargetBoard() const {
     return targetBoard;
 }
+void Player::setLimitOneNextTurn(){
+    limitOneNextTurn  = true;
+}
+void Player::setReduceOneNextTurn() {
+    reduceOneNextTurn = true; }
+int  Player::getFleetSize() const  {
+    return fleetSize; }
+

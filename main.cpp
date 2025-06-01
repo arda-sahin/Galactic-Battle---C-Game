@@ -4,6 +4,7 @@
 #include <ctime>
 #include <cstring>
 
+
 int main()
 {
     //Mode selection

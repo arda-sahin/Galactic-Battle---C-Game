@@ -37,6 +37,15 @@ public:
 
     Board* getOwnBoard()    const;
     Board* getTargetBoard() const;
+
+    // helper for GiftSystem
+    bool limitOneNextTurn;
+    bool reduceOneNextTurn;
+
+    void setLimitOneNextTurn();
+    void setReduceOneNextTurn();
+
+    int  getFleetSize() const;
 };
 
 #endif
