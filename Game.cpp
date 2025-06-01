@@ -15,16 +15,22 @@ Game::Game(BattleMode m, const char* name1, const char* name2, int r, int c) : m
 
     // Fleet composition based on chosen mode
     int sd, mc, xw, tie;
-    if (mode == SWIFTSTRIKE)          { sd = 1; mc = 1; xw = 1; tie = 2; }
-    else if (mode == STARLIGHT_CLASH) { sd = 2; mc = 2; xw = 2; tie = 4; }
-    else                              { sd = 4; mc = 3; xw = 3; tie = 4; }
+    if (mode == SWIFTSTRIKE) {
+        sd = 1; mc = 1; xw = 1; tie = 2;
+    }
+    else if (mode == STARLIGHT_CLASH) {
+        sd = 2; mc = 2; xw = 2; tie = 4;
+    }
+    else {
+        sd = 4; mc = 3; xw = 3; tie = 4;
+    }
 
     // Add ships to both players
-    for (int p = 0; p < 2; ++p) {
+    for (int p = 0; p < 2; p++) {
         int id = 0;
-        for (int i = 0; i < sd;  ++i) players[p]->addShip(new StarDestroyer(++id));
-        for (int i = 0; i < mc;  ++i) players[p]->addShip(new MonCalamariCruiser(++id));
-        for (int i = 0; i < xw;  ++i) players[p]->addShip(new XWingSquadron(++id));
+        for (int i = 0; i < sd; ++i) players[p]->addShip(new StarDestroyer(++id));
+        for (int i = 0; i < mc; ++i) players[p]->addShip(new MonCalamariCruiser(++id));
+        for (int i = 0; i < xw; ++i) players[p]->addShip(new XWingSquadron(++id));
         for (int i = 0; i < tie; ++i) players[p]->addShip(new TIEFighter(++id));
     }
 }

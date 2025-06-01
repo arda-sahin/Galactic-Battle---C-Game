@@ -3,8 +3,7 @@
 
 #include "BattleShip.h"
 
-class XWingSquadron : public BattleShip
-{
+class XWingSquadron : public BattleShip {
 public:
     XWingSquadron(int id);
     void shoot(Board& target) override;

@@ -26,14 +26,7 @@ static bool parseCoordinate(const char* str, Coordinate& out)
 
 // Constructor / Destructor
 Player::Player(const char* playerName, int rows, int cols)
-        : ownBoard(0),
-          targetBoard(0),
-          fleetSize(0),
-          totalShots(0),
-          hits(0),
-          misses(0),
-          limitOneNextTurn(false),
-          reduceOneNextTurn(false)
+        : ownBoard(0), targetBoard(0), fleetSize(0), totalShots(0), hits(0), misses(0), limitOneNextTurn(false), reduceOneNextTurn(false)
 {
     std::memset(name, 0, 50);
     if (playerName != 0)
@@ -52,25 +45,23 @@ Player::~Player()
 }
 
 // Fleet management
-void Player::addShip(BattleShip* ship)
-{
+void Player::addShip(BattleShip* ship) {
+
     if (fleetSize < 20 && ship != 0)
         fleet[fleetSize++] = ship;
 }
 
-int Player::remainingShips() const
-{
+int Player::remainingShips() const {
     int cnt = 0;
     for (int i = 0; i < fleetSize; ++i)
         if (!fleet[i]->isSunk()) ++cnt;
     return cnt;
 }
 
-void Player::countRemainingTypes(int& sd,int& mc,int& xw,int& tie) const
-{
+void Player::countRemainingTypes(int& sd,int& mc,int& xw,int& tie) const {
     sd = mc = xw = tie = 0;
-    for (int i = 0; i < fleetSize; ++i)
-    {
+    for (int i = 0; i < fleetSize; ++i) {
+
         if (fleet[i]->isSunk()) continue;
 
         char sym = fleet[i]->getSymbol();
@@ -81,8 +72,8 @@ void Player::countRemainingTypes(int& sd,int& mc,int& xw,int& tie) const
     }
 }
 
-int Player::maxLaserBursts() const
-{
+int Player::maxLaserBursts() const {
+
     int maxB = 0;
     for (int i = 0; i < fleetSize; ++i)
         if (!fleet[i]->isSunk() &&
@@ -92,17 +83,16 @@ int Player::maxLaserBursts() const
 }
 
 // Deployment
-void Player::deployFleet()
-{
+void Player::deployFleet() {
+
     std::cout << "\nCommander " << name << ", deploy your fleet.\n";
 
-    for (int i = 0; i < fleetSize; ++i)
-    {
+    for (int i = 0; i < fleetSize; ++i) {
+
         BattleShip* ship = fleet[i];
         bool placed = false;
 
-        while (!placed)
-        {
+        while (!placed) {
             std::cout << "Place ship (size " << ship->getSize() << ", symbol '" << ship->getSymbol() << "')\nEnter start and end coordinates (Example: a0 a4): ";
 
             char sStr[10], eStr[10];
@@ -116,13 +106,11 @@ void Player::deployFleet()
                 continue;
             }
 
-            if (ownBoard->placeShip(ship, start, end))
-            {
+            if (ownBoard->placeShip(ship, start, end)) {
                 ownBoard->display(true);
                 placed = true;
             }
-            else
-            {
+            else {
                 std::cout << "Cannot place there. Try again.\n";
             }
         }

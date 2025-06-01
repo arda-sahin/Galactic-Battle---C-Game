@@ -5,8 +5,7 @@
 
 class BattleShip;
 
-class Board
-{
+class Board {
 private:
     int   rows;
     int   cols;
@@ -16,11 +15,9 @@ public:
     Board(int r, int c);
     ~Board();
 
-    bool placeShip(BattleShip* ship,
-                   const Coordinate& start,
-                   const Coordinate& end);
+    bool placeShip(BattleShip* ship, const Coordinate& start, const Coordinate& end);
 
-    bool isInside(const Coordinate& coord)  const;
+    bool isInside(const Coordinate& cordinate)  const;
     bool isOccupied(const Coordinate& coord) const;
 
     bool markHit(const Coordinate& coord);  // Returns true if a ship cell is hit
@@ -29,8 +26,8 @@ public:
 
     void display(bool revealShips) const; // Prints the board
 
-    int  getRows() const;
-    int  getCols() const;
+    int getRows() const;
+    int getCols() const;
 };
 
 #endif //A3_BOARD_H

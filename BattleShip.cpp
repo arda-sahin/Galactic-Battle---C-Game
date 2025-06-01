@@ -41,8 +41,7 @@ int BattleShip::getSize() const
 void BattleShip::registerHit()
 {
     hitCount = hitCount + 1;
-    if (hitCount >= hitsToDestroy)
-    {
+    if (hitCount >= hitsToDestroy) {
         status = true; //sunk
     }
 }

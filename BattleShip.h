@@ -20,12 +20,10 @@ public:
 
     virtual void shoot(Board& target) = 0;
 
-    // Accessors
-    bool isSunk()         const;
+    bool isSunk() const;
     int  getLaserBursts() const;
-    char getSymbol()      const;
-    int  getSize()        const;
-
+    char getSymbol() const;
+    int  getSize() const;
 
     void registerHit();  //Called when the ship is hit
     Coordinate* cells;

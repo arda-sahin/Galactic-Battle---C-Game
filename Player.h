@@ -4,15 +4,13 @@
 #include "Board.h"
 #include "BattleShip.h"
 
-class Player
-{
+class Player {
 private:
-    char       name[50];
-    Board*     ownBoard;
-    Board*     targetBoard;
+    char name[50];
+    Board* ownBoard;
+    Board* targetBoard;
     BattleShip* fleet[20];
-    int        fleetSize;
-
+    int fleetSize;
     int totalShots;
     int hits;
     int misses;
@@ -25,10 +23,10 @@ public:
 
     void addShip(BattleShip* ship);
     void deployFleet();
-    int  takeTurn(Player& enemy); // returns hits this turn
+    int takeTurn(Player& enemy); // returns hits this turn
 
-    int  remainingShips() const;
-    int  maxLaserBursts() const;
+    int remainingShips() const;
+    int maxLaserBursts() const;
 
 
     const char* getName() const;
