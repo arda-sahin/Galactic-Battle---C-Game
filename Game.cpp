@@ -58,6 +58,10 @@ void Game::battlePhase() {
 
         int hitsThisTurn = attacker->takeTurn(*defender);
 
+        //victory check
+        if (checkVictory())
+            break;
+
         // AFTER SHOOTING: Show updated boards
         std::cout << "\n--- " << attacker->getName() << "'s turn: UPDATED BOARDS ---\n";
         attacker->printBoards(false);

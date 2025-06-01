@@ -142,8 +142,7 @@ int Player::takeTurn(Player& enemy) {
         Coordinate target;
         bool valid = false;
 
-        while (!valid)
-        {
+        while (!valid) {
             std::cout << "  Shot #" << (s + 1) << ": ";
             std::cin >> coordStr;
 
@@ -211,6 +210,11 @@ int Player::takeTurn(Player& enemy) {
         }
         targetBoard->setCell(target, markChar);
         ++totalShots;
+
+        //  If enemy has no ships left, stop the loop
+        if (enemy.remainingShips() == 0){
+            break;
+        }
     }
 
     return hitsThisTurn;
